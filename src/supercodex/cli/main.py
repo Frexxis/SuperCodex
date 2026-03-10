@@ -136,7 +136,7 @@ def prompts(target: str, force: bool, list_only: bool) -> None:
         click.echo("📋 Available Prompts (Slash Commands):")
         for name in available:
             status = "✅ installed" if name in installed else "⬜ not installed"
-            click.echo(f"   /{name:22} {status}")
+            click.echo(f"   /prompts:{name:14} {status}")
         click.echo(f"\nTotal: {len(available)} available, {len(installed)} installed")
         return
 

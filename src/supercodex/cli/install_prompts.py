@@ -93,14 +93,14 @@ def install_prompts(
     if installed:
         lines.append(f"✅ Installed {len(installed)} prompt(s):")
         for name in installed:
-            lines.append(f"   - /{name}")
+            lines.append(f"   - /prompts:{name}")
 
     if skipped:
         lines.append(
             f"\n⚠️  Skipped {len(skipped)} existing prompt(s) (use --force to reinstall):"
         )
         for name in skipped:
-            lines.append(f"   - /{name}")
+            lines.append(f"   - /prompts:{name}")
 
     if failed:
         lines.append(f"\n❌ Failed to install {len(failed)} prompt(s):")
@@ -112,7 +112,7 @@ def install_prompts(
 
     lines.append(f"\n📁 Prompts directory: {target_path}")
     lines.append(
-        "\n💡 Tip: Restart Codex to load new/updated prompts. Then type `/` and search for `scx`."
+        "\n💡 Tip: Restart Codex to load new/updated prompts. Then type `/prompts:` and search for `scx`."
     )
 
     return len(failed) == 0, "\n".join(lines)

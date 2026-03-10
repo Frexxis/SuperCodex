@@ -41,9 +41,9 @@ supercodex install
 
 After `supercodex install`, restart Codex and use:
 
-- `/scx` (menu / index)
-- `/scx-research <query>`
-- `/scx-implement <task>`
+- `/prompts:scx` (menu / index)
+- `/prompts:scx-research <query>`
+- `/prompts:scx-implement <task>`
 
 These are Codex **custom prompts** that expand into messages that trigger the matching `scx-*` skill.
 

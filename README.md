@@ -12,14 +12,15 @@ SuperCodex is a SuperClaude-derived framework that installs a curated set of wor
 ## Install (From Source)
 
 ```bash
-cd SuperCodex_Framework
+git clone https://github.com/Frexxis/SuperCodex.git
+cd SuperCodex
 ./install.sh
 ```
 
 Manual install:
 
 ```bash
-cd SuperCodex_Framework
+cd SuperCodex
 uv venv
 uv pip install -e ".[dev]"
 supercodex install
@@ -56,7 +57,7 @@ Notes:
 ## Dev
 
 ```bash
-cd SuperCodex_Framework
+cd SuperCodex
 uv run pytest
 ```
 

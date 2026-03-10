@@ -16,6 +16,7 @@ def run_doctor(verbose: bool = False) -> Dict[str, Any]:
     checks.append(_check_importable())
     checks.append(_check_command_sources())
     checks.append(_check_skills_installed())
+    checks.append(_check_prompts_installed())
     checks.append(_check_codex_config())
 
     return {"checks": checks, "passed": all(c["passed"] for c in checks)}
@@ -123,3 +124,25 @@ def _check_codex_config() -> Dict[str, Any]:
             "details": [f"Could not read config: {exc}"],
         }
 
+
+def _check_prompts_installed() -> Dict[str, Any]:
+    prompts_dir = Path("~/.codex/prompts").expanduser()
+    if not prompts_dir.exists():
+        return {
+            "name": "Slash prompts installed",
+            "passed": True,  # Optional
+            "details": ["No ~/.codex/prompts directory (run: supercodex prompts)"],
+        }
+
+    prompt_files = sorted(p.name for p in prompts_dir.glob("scx*.md"))
+    if prompt_files:
+        details = [f"Found {len(prompt_files)} scx* prompt(s) under {prompts_dir}"]
+        if len(prompt_files) <= 10:
+            details.append(", ".join(prompt_files))
+        return {"name": "Slash prompts installed", "passed": True, "details": details}
+
+    return {
+        "name": "Slash prompts installed",
+        "passed": True,  # Optional
+        "details": [f"No scx* prompts found in {prompts_dir} (run: supercodex prompts)"],
+    }

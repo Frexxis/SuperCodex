@@ -5,6 +5,7 @@ SuperCodex is a SuperClaude-derived framework that installs a curated set of wor
 ## What You Get
 
 - `supercodex install` installs skills under `~/.codex/skills/` (default prefix: `scx-`)
+- `supercodex install` also installs Codex custom prompts (slash shortcuts) under `~/.codex/prompts/`
 - `supercodex update` force-reinstalls all skills (useful after pulling changes)
 - `supercodex mcp` safely merges MCP server presets into `~/.codex/config.toml` (backup + `--dry-run`)
 - `supercodex doctor` checks package/config/skill health
@@ -35,6 +36,16 @@ pipx install git+https://github.com/Frexxis/SuperCodex.git
 # Install/update skills into Codex
 supercodex install
 ```
+
+## Slash Commands (Codex)
+
+After `supercodex install`, restart Codex and use:
+
+- `/scx` (menu / index)
+- `/scx-research <query>`
+- `/scx-implement <task>`
+
+These are Codex **custom prompts** that expand into messages that trigger the matching `scx-*` skill.
 
 ## MCP Presets (Optional)
 

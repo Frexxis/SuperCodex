@@ -68,6 +68,16 @@ def install(target: str, force: bool, list_only: bool) -> None:
     if not success:
         raise SystemExit(1)
 
+    # Install slash-command shortcuts (custom prompts) as a convenience.
+    from .install_prompts import install_prompts
+
+    click.echo()
+    click.echo("🧩 Installing SuperCodex slash command prompts...\n")
+    prompts_ok, prompts_msg = install_prompts(force=force)
+    click.echo(prompts_msg)
+    if not prompts_ok:
+        raise SystemExit(1)
+
 
 @main.command()
 @click.option(
@@ -82,6 +92,56 @@ def update(target: str) -> None:
     target_path = Path(target).expanduser()
     click.echo(f"🔄 Updating SuperCodex skills in {target_path}...\n")
     success, message = install_skills(target_path=target_path, force=True)
+    click.echo(message)
+    if not success:
+        raise SystemExit(1)
+
+    from .install_prompts import install_prompts
+
+    click.echo()
+    click.echo("🧩 Updating SuperCodex slash command prompts...\n")
+    prompts_ok, prompts_msg = install_prompts(force=True)
+    click.echo(prompts_msg)
+    if not prompts_ok:
+        raise SystemExit(1)
+
+
+@main.command()
+@click.option(
+    "--target",
+    default="~/.codex/prompts",
+    help="Installation directory (default: ~/.codex/prompts)",
+)
+@click.option("--force", is_flag=True, help="Force reinstall if prompts already exist")
+@click.option(
+    "--list",
+    "list_only",
+    is_flag=True,
+    help="List available prompts without installing",
+)
+def prompts(target: str, force: bool, list_only: bool) -> None:
+    """Install SuperCodex custom prompts (slash commands) for Codex."""
+    from .install_prompts import (
+        install_prompts,
+        list_available_prompts,
+        list_installed_prompts,
+    )
+
+    target_path = Path(target).expanduser()
+
+    if list_only:
+        available = list_available_prompts()
+        installed = set(list_installed_prompts(target_path=target_path))
+
+        click.echo("📋 Available Prompts (Slash Commands):")
+        for name in available:
+            status = "✅ installed" if name in installed else "⬜ not installed"
+            click.echo(f"   /{name:22} {status}")
+        click.echo(f"\nTotal: {len(available)} available, {len(installed)} installed")
+        return
+
+    click.echo(f"📦 Installing SuperCodex prompts to {target_path}...\n")
+    success, message = install_prompts(target_path=target_path, force=force)
     click.echo(message)
     if not success:
         raise SystemExit(1)

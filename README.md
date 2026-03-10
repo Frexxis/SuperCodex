@@ -25,6 +25,16 @@ uv pip install -e ".[dev]"
 supercodex install
 ```
 
+## Install (GitHub)
+
+```bash
+# Recommended: isolated install
+pipx install git+https://github.com/Frexxis/SuperCodex.git
+
+# Install/update skills into Codex
+supercodex install
+```
+
 ## MCP Presets (Optional)
 
 ```bash

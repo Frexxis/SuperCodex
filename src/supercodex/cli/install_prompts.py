@@ -2,7 +2,7 @@
 Custom Prompt Installation (Codex)
 
 Installs Codex custom prompt files into `~/.codex/prompts` so that users can
-invoke SuperCodex workflows via slash commands (e.g. `/scx`, `/scx-research`).
+invoke SuperCodex workflows via slash commands (e.g. `/prompts:scx-research`).
 
 Custom prompts are a Codex feature that expands Markdown files into messages.
 They are *explicit* (user-invoked) and live in Codex home, not in a repo.
@@ -31,7 +31,7 @@ def install_prompts(
     Install SuperCodex custom prompts (slash commands) for Codex.
 
     Creates:
-      - scx.md (alias -> scx-sc skill)
+      - scx.md (alias -> scx-sc prompt content)
       - scx-<command>.md for each packaged command
     """
     if target_path is None:
@@ -60,7 +60,10 @@ def install_prompts(
         skipped.append(alias_name)
     else:
         try:
-            alias_file.write_text(_render_alias_prompt(prefix=prefix), encoding="utf-8")
+            alias_file.write_text(
+                _render_alias_prompt(prefix=prefix, command_source=command_source),
+                encoding="utf-8",
+            )
             installed.append(alias_name)
         except Exception as exc:
             failed.append(f"{alias_name}: {exc}")
@@ -76,13 +79,13 @@ def install_prompts(
 
         try:
             raw = cmd_file.read_text(encoding="utf-8")
-            frontmatter, _body = _split_frontmatter(raw)
+            frontmatter, body = _split_frontmatter(raw)
             description = frontmatter.get("description") or f"SuperCodex: {command_name}"
 
             rendered = _render_prompt(
                 prompt_name=prompt_name,
                 description=description,
-                skill_name=prompt_name,
+                body=body,
             )
             prompt_file.write_text(rendered, encoding="utf-8")
             installed.append(prompt_name)
@@ -149,25 +152,45 @@ def list_installed_prompts(
     return sorted(installed)
 
 
-def _render_alias_prompt(prefix: str) -> str:
-    # This prompt expands into a message that forces the agent to use the scx-sc skill.
+def _render_alias_prompt(*, prefix: str, command_source: Path) -> str:
+    """
+    Render the `/prompts:scx` alias prompt.
+
+    Prefers using the packaged `sc.md` command body so the alias is useful even
+    when skills are not explicitly invoked.
+    """
+    sc_file = command_source / "sc.md"
+    if sc_file.exists():
+        raw = sc_file.read_text(encoding="utf-8")
+        _frontmatter, body = _split_frontmatter(raw)
+        return _render_prompt(
+            prompt_name=prefix.rstrip("-"),
+            description="SuperCodex: entrypoint (list and usage)",
+            body=body,
+        )
+
+    # Fallback: minimal help text.
     return (
         "---\n"
-        'description: "SuperCodex: list available scx skills"\n'
+        'description: "SuperCodex: entrypoint (list and usage)"\n'
+        'argument-hint: [INPUT="<text>"]\n'
         "---\n\n"
-        f"Use the `{prefix}sc` skill to list available SuperCodex skills and how to use them.\n"
+        "SuperCodex prompts are invoked as `/prompts:scx-<command>`.\n\n"
+        "Examples:\n"
+        "- `/prompts:scx-research <query>`\n"
+        "- `/prompts:scx-implement <task>`\n"
     )
 
 
-def _render_prompt(*, prompt_name: str, description: str, skill_name: str) -> str:
-    # Use `$ARGUMENTS` so users can call `/scx-research <query>` or `/scx-research QUERY=\"...\"`.
+def _render_prompt(*, prompt_name: str, description: str, body: str) -> str:
+    # Use `$ARGUMENTS` so users can call `/prompts:scx-research <query>`.
     safe_description = description.replace("\\", "\\\\").replace('"', '\\"')
     return (
         "---\n"
         f'description: "{safe_description}"\n'
         'argument-hint: [INPUT="<text>"]\n'
         "---\n\n"
-        f"Use the `{skill_name}` skill.\n\n"
         "User input:\n"
-        "$ARGUMENTS\n"
+        "$ARGUMENTS\n\n"
+        + body
     )

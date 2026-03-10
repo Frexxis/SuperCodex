@@ -12,17 +12,17 @@ from supercodex.pm_agent.reflexion import ReflexionPattern
 class TestReflexionPattern:
     """Test suite for ReflexionPattern class"""
 
-    def test_initialization(self):
+    def test_initialization(self, temp_memory_dir):
         """Test ReflexionPattern initialization"""
-        reflexion = ReflexionPattern()
+        reflexion = ReflexionPattern(memory_dir=temp_memory_dir)
 
         assert reflexion is not None
         assert hasattr(reflexion, "record_error")
         assert hasattr(reflexion, "get_solution")
 
-    def test_record_error_basic(self):
+    def test_record_error_basic(self, temp_memory_dir):
         """Test recording a basic error"""
-        reflexion = ReflexionPattern()
+        reflexion = ReflexionPattern(memory_dir=temp_memory_dir)
 
         error_info = {
             "test_name": "test_feature",
@@ -34,9 +34,9 @@ class TestReflexionPattern:
         # Should not raise an exception
         reflexion.record_error(error_info)
 
-    def test_record_error_with_solution(self):
+    def test_record_error_with_solution(self, temp_memory_dir):
         """Test recording an error with a solution"""
-        reflexion = ReflexionPattern()
+        reflexion = ReflexionPattern(memory_dir=temp_memory_dir)
 
         error_info = {
             "test_name": "test_database_connection",
@@ -47,9 +47,9 @@ class TestReflexionPattern:
 
         reflexion.record_error(error_info)
 
-    def test_get_solution_for_known_error(self):
+    def test_get_solution_for_known_error(self, temp_memory_dir):
         """Test retrieving solution for a known error pattern"""
-        reflexion = ReflexionPattern()
+        reflexion = ReflexionPattern(memory_dir=temp_memory_dir)
 
         # Record an error with solution
         error_info = {
@@ -68,9 +68,9 @@ class TestReflexionPattern:
         # This test documents expected behavior
         assert solution is None or isinstance(solution, str)
 
-    def test_error_pattern_matching(self):
+    def test_error_pattern_matching(self, temp_memory_dir):
         """Test error pattern matching functionality"""
-        reflexion = ReflexionPattern()
+        reflexion = ReflexionPattern(memory_dir=temp_memory_dir)
 
         # Record multiple similar errors
         errors = [
@@ -108,14 +108,14 @@ class TestReflexionPattern:
         # Should not raise exception even with custom memory dir
         reflexion.record_error(error_info)
 
-    def test_error_learning_across_sessions(self):
+    def test_error_learning_across_sessions(self, temp_memory_dir):
         """
         Test that errors can be learned across sessions
 
         Note: This tests the interface, actual persistence
         depends on implementation
         """
-        reflexion = ReflexionPattern()
+        reflexion = ReflexionPattern(memory_dir=temp_memory_dir)
 
         # Session 1: Record error
         error_info = {
@@ -156,13 +156,14 @@ def test_reflexion_marker_integration(reflexion_pattern):
     reflexion_pattern.record_error(error_info)
 
 
-def test_reflexion_with_real_exception():
+def test_reflexion_with_real_exception(tmp_path):
     """
     Test reflexion pattern with a real exception scenario
 
     This simulates how reflexion would be used in practice
     """
-    reflexion = ReflexionPattern()
+    # Use a temporary memory dir to avoid writing to repo state.
+    reflexion = ReflexionPattern(memory_dir=tmp_path / "docs" / "memory")
 
     try:
         # Simulate an operation that fails

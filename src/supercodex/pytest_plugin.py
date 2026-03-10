@@ -69,7 +69,7 @@ def self_check_protocol():
 
 
 @pytest.fixture
-def reflexion_pattern():
+def reflexion_pattern(tmp_path_factory):
     """
     Fixture for reflexion error learning pattern
 
@@ -78,7 +78,9 @@ def reflexion_pattern():
             reflexion_pattern.record_error(...)
             solution = reflexion_pattern.get_solution(error_signature)
     """
-    return ReflexionPattern()
+    memory_dir = tmp_path_factory.mktemp("supercodex-memory") / "docs" / "memory"
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    return ReflexionPattern(memory_dir=memory_dir)
 
 
 @pytest.fixture
